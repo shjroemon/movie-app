@@ -11,8 +11,8 @@ function MainFooter() {
       mt={2}
     >
       {"Copyright © "}
-      <Link color="inherit" href="https://www.coderschool.vn">
-        wiredlime
+      <Link color="inherit" href="">
+        Huy
       </Link>{" "}
       {new Date().getFullYear()}
       {"."}
