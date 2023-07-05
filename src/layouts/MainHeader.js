@@ -1,216 +1,208 @@
-import useResponsive from "../hooks/useResponsive";
-import useOffSetTop from "../hooks/useOffSetTop";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
-import React, { useEffect, useState } from "react";
-import apiService from "../app/apiService";
+import * as React from "react";
+import AppBar from "@mui/material/AppBar";
+import Box from "@mui/material/Box";
+import Toolbar from "@mui/material/Toolbar";
 import IconButton from "@mui/material/IconButton";
-
-import { HEADER } from "../app/config";
-import { Toolbar, AppBar, Container, Box, Button } from "@mui/material";
-import InputBase from "@mui/material/InputBase";
-import LoginIcon from "@mui/icons-material/Login";
-import LoginOutlined from "@mui/icons-material/LoginOutlined";
-import Avatar from "@mui/material/Avatar";
-import SearchIcon from "@mui/icons-material/Search";
-import { styled, useTheme, alpha } from "@mui/material/styles";
-import MenuDesktop from "./MenuDesktop";
-import MenuMobile from "./MenuMobile";
-import { API_KEY } from "../app/config";
-import { PATH_AUTH, path, PATH_FILM } from "../routes/paths";
-import useAuth from "../hooks/useAuth";
-import Menu from "@mui/material/Menu";
+import Button from "@mui/material/Button";
 import MenuItem from "@mui/material/MenuItem";
-import Typography from "@mui/material/Typography";
+import Menu from "@mui/material/Menu";
+import MSearchBar from "../components/MSearchBar";
+import AccountCircle from "@mui/icons-material/AccountCircle";
+import MoreIcon from "@mui/icons-material/MoreVert";
+import ChairIcon from "@mui/icons-material/Chair";
+import YouTubeIcon from "@mui/icons-material/YouTube";
+import StarIcon from "@mui/icons-material/Star";
+import { useAuth } from "../contexts/AuthContext";
+import { Link, useLocation } from "react-router-dom";
 
-const BoxStyle = styled(Box)(({ theme }) => ({
-    height: HEADER.MOBILE_HEIGHT,
-    [theme.breakpoints.up("md")]: {
-        height: HEADER.MAIN_DESKTOP_HEIGHT,
-    },
-}));
+export default function PrimarySearchAppBar() {
+  let location = useLocation();
+  let auth = useAuth();
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
 
-const ToolbarStyle = styled(Toolbar)(({ theme }) => ({
-    height: HEADER.MOBILE_HEIGHT,
-    transition: theme.transitions.create(["height", "background-color"], {
-        easing: theme.transitions.easing.easeInOut,
-        duration: theme.transitions.duration.shorter,
-    }),
-    [theme.breakpoints.up("md")]: {
-        height: HEADER.MAIN_DESKTOP_HEIGHT,
-    },
-    backgroundColor: theme.palette.primary.main,
-    padding: 0,
-}));
+  const isMenuOpen = Boolean(anchorEl);
+  const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
 
-const Search = styled("div")(({ theme }) => ({
-    position: "relative",
-    borderRadius: theme.shape.borderRadius,
-    backgroundColor: alpha(theme.palette.common.white, 0.15),
-    "&:hover": {
-        backgroundColor: alpha(theme.palette.common.white, 0.25),
-    },
-    marginLeft: 0,
-    marginRight: theme.spacing(1),
-    width: "100%",
-    [theme.breakpoints.up("sm")]: {
-        marginLeft: theme.spacing(1),
-        width: "auto",
-    },
-}));
+  const handleProfileMenuOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
 
-const SearchIconWrapper = styled("div")(({ theme }) => ({
-    padding: theme.spacing(0, 2),
-    height: "100%",
-    position: "absolute",
-    pointerEvents: "none",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-}));
+  const handleMobileMenuClose = () => {
+    setMobileMoreAnchorEl(null);
+  };
 
-const StyledInputBase = styled(InputBase)(({ theme }) => ({
-    color: "inherit",
-    "& .MuiInputBase-input": {
-        padding: theme.spacing(1, 1, 1, 0),
-        // vertical padding + font size from searchIcon
-        paddingLeft: `calc(1em + ${theme.spacing(4)})`,
-        transition: theme.transitions.create("width"),
-        width: "100%",
-        [theme.breakpoints.up("sm")]: {
-            width: "12ch",
-            "&:focus": {
-                width: "20ch",
-            },
-        },
-    },
-}));
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+    handleMobileMenuClose();
+    console.log(location);
+  };
 
-const MainHeader = () => {
-    const isDesktop = useResponsive("up", "md");
-    const auth = useAuth();
-    const isOffset = useOffSetTop(HEADER.MAIN_DESKTOP_HEIGHT);
-    const { pathname } = useLocation();
-    const [genres, setGenres] = useState([]);
-    let navigate = useNavigate();
-    const isHome = pathname === "/";
-    const { q } = useParams();
-    const [anchorElUser, setAnchorElUser] = React.useState(null);
-
-    const handleOpenUserMenu = (event) => {
-        setAnchorElUser(event.currentTarget);
-    };
-
-    const handleCloseUserMenu = () => {
-        setAnchorElUser(null);
-    };
-
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const res = await apiService.get(`https://api.themoviedb.org/3/genre/movie/list?api_key=${API_KEY}`);
-                if (res.status === 200) {
-                    setGenres([...res.data["genres"]]);
-                }
-            } catch (error) {
-                console.log(error.message);
-            }
-        };
-        fetchData();
-    }, []);
-
-    return (
-        <BoxStyle
-            sx={{
-                height: { md: HEADER.MAIN_DESKTOP_HEIGHT - 16 },
-            }}
+  const handleMobileMenuOpen = (event) => {
+    setMobileMoreAnchorEl(event.currentTarget);
+  };
+  const handleLogout = () => {
+    handleMenuClose(); //menu close before signout so that login won't pop up.
+    auth.signout();
+  };
+  const menuId = "primary-search-account-menu";
+  const renderMenu = (
+    <Menu
+      anchorEl={anchorEl}
+      anchorOrigin={{
+        vertical: "top",
+        horizontal: "right",
+      }}
+      id={menuId}
+      keepMounted
+      transformOrigin={{
+        vertical: "top",
+        horizontal: "right",
+      }}
+      open={isMenuOpen}
+      onClose={handleMenuClose}
+    >
+      {auth.user ? (
+        <>
+          <Button
+            color="inherit"
+            component={Link}
+            to="/favorite"
+            onClick={handleMenuClose}
+          >
+            {auth.user}
+          </Button>
+          <Button color="inherit" onClick={() => handleLogout()}>
+            Logout
+          </Button>
+        </>
+      ) : (
+        <Button
+          color="inherit"
+          component={Link}
+          to="/form"
+          state={{ backgroundLocation: location, from: location }}
+          onClick={handleMenuClose}
         >
-            <AppBar sx={{ boxShadow: 0, bgcolor: "transparent" }}>
-                <ToolbarStyle
-                    disableGutters
-                    sx={{
-                        height: { md: HEADER.MAIN_DESKTOP_HEIGHT - 16 },
-                    }}
-                >
-                    <Container
-                        sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "space-between",
-                        }}
-                    >
-                        {isDesktop && <MenuDesktop isOffset={isOffset} isHome={isHome} navConfig={genres} />}
+          Login
+        </Button>
+      )}
+    </Menu>
+  );
 
-                        {!isDesktop && <MenuMobile isOffset={isOffset} isHome={isHome} navConfig={genres} />}
-                        <Box sx={{ flexGrow: 1 }} />
-                        <Box
-                            component="form"
-                            noValidate
-                            autoComplete="off"
-                            onSubmit={(event) => {
-                                event.preventDefault();
-                                const search = event.target.elements.search.value;
-                                if (search) {
-                                    navigate(path(PATH_FILM.search, `/${event.target.elements.search.value}`));
-                                }
-                            }}
-                        >
-                            <Search>
-                                <SearchIconWrapper>
-                                    <SearchIcon />
-                                </SearchIconWrapper>
-                                <StyledInputBase
-                                    name="search"
-                                    placeholder="Search…"
-                                    inputProps={{ "aria-label": "search" }}
-                                />
-                            </Search>
-                        </Box>
-                        {auth.isAuthenticated ? (
-                            <>
-                                <IconButton onClick={handleOpenUserMenu}>
-                                    <Avatar alt="Remy Sharp" src="/images/avatar/1.jpg" />
-                                </IconButton>
-                                <Menu
-                                    sx={{ mt: "45px" }}
-                                    id="menu-appbar"
-                                    anchorEl={anchorElUser}
-                                    anchorOrigin={{
-                                        vertical: "top",
-                                        horizontal: "right",
-                                    }}
-                                    keepMounted
-                                    transformOrigin={{
-                                        vertical: "top",
-                                        horizontal: "right",
-                                    }}
-                                    open={Boolean(anchorElUser)}
-                                    onClose={handleCloseUserMenu}
-                                >
-                                    <MenuItem
-                                        onClick={() => {
-                                            handleCloseUserMenu();
-                                            auth.logout(() => navigate(pathname, { replace: true }));
-                                        }}
-                                    >
-                                        <Typography textAlign="center">Logout</Typography>
-                                    </MenuItem>
-                                </Menu>
-                            </>
-                        ) : (
-                            <Button
-                                onClick={() => {
-                                    navigate(PATH_AUTH.login, { replace: true });
-                                }}
-                                variant="contained"
-                                startIcon={<LoginIcon />}
-                            >
-                                Login
-                            </Button>
-                        )}
-                    </Container>
-                </ToolbarStyle>
-            </AppBar>
-        </BoxStyle>
-    );
-};
-export default MainHeader;
+  const mobileMenuId = "primary-search-account-menu-mobile";
+  const renderMobileMenu = (
+    <Menu
+      anchorEl={mobileMoreAnchorEl}
+      anchorOrigin={{
+        vertical: "top",
+        horizontal: "right",
+      }}
+      id={mobileMenuId}
+      keepMounted
+      transformOrigin={{
+        vertical: "top",
+        horizontal: "right",
+      }}
+      open={isMobileMenuOpen}
+      onClose={handleMobileMenuClose}
+    >
+      <MenuItem component={Link} to="/discovery/1">
+        <IconButton
+          size="large"
+          color="inherit"
+          disableRipple={true}
+          children={<YouTubeIcon />}
+        />
+        <p>Discovery</p>
+      </MenuItem>
+
+      <MenuItem component={Link} to="/favorite">
+        <IconButton
+          size="large"
+          color="inherit"
+          disableRipple={true}
+          children={<StarIcon />}
+        />
+
+        <p>Favorite</p>
+      </MenuItem>
+      <MenuItem component={Link} to="/form">
+        <IconButton
+          size="large"
+          //cool styling ui props
+          aria-label="account of current user"
+          aria-controls={menuId}
+          disableRipple={true}
+          aria-haspopup="true"
+          color="inherit"
+          children={<AccountCircle />}
+        />
+
+        <p>Profile</p>
+      </MenuItem>
+    </Menu>
+  );
+
+  return (
+    <Box sx={{ flexGrow: 1 }}>
+      <AppBar position="static">
+        <Toolbar>
+          <IconButton
+            size="large"
+            color="inherit"
+            component={Link}
+            to="/"
+            children={<ChairIcon />}
+          />
+          <MSearchBar />
+          <Box sx={{ flexGrow: 1 }} />
+          <Box
+            sx={{
+              display: { xs: "none", md: "flex" },
+            }}
+          >
+            <IconButton
+              component={Link}
+              to="/favorite"
+              size="large"
+              color="inherit"
+              children={<StarIcon />}
+            />
+            <IconButton
+              component={Link}
+              to="/discovery/1"
+              size="large"
+              color="inherit"
+              children={<YouTubeIcon />}
+            />
+            <IconButton
+              size="large"
+              //cool styling ui props
+              aria-label="account of current user"
+              aria-controls={menuId}
+              aria-haspopup="true"
+              onClick={handleProfileMenuOpen}
+              color="inherit"
+              children={<AccountCircle />}
+            />
+          </Box>
+          <Box sx={{ display: { xs: "flex", md: "none" } }}>
+            <IconButton
+              size="large"
+              aria-label="show more"
+              aria-controls={mobileMenuId}
+              aria-haspopup="true"
+              onClick={handleMobileMenuOpen}
+              color="inherit"
+            >
+              <MoreIcon />
+            </IconButton>
+          </Box>
+        </Toolbar>
+      </AppBar>
+      {renderMobileMenu}
+      {renderMenu}
+    </Box>
+  );
+}
