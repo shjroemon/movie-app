@@ -42,7 +42,7 @@ export default function PrimarySearchAppBar() {
     setMobileMoreAnchorEl(event.currentTarget);
   };
   const handleLogout = () => {
-    handleMenuClose(); //menu close before signout so that login won't pop up.
+    handleMenuClose();
     auth.signout();
   };
   const menuId = "primary-search-account-menu";
