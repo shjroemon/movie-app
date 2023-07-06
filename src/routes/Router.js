@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 import MainLayout from "../layouts/MainLayout";
-import Homepage from "../pages/Homepage";
+import HomePage from "../pages/HomePage";
 import Discovery from "../pages/Discovery";
 import FormPage from "../pages/Form";
 import MovieDetail from "../pages/MovieDetail";
@@ -24,7 +24,7 @@ function Router() {
     <>
       <Routes location={state?.backgroundLocation || location}>
         <Route path="/" element={<MainLayout />}>
-          <Route index element={<Homepage />} />
+          <Route index element={<HomePage />} />
           <Route path="discovery/:pageId" element={<Discovery />} />
           <Route path="/movie/:movieId" element={<MovieDetail />} />
           <Route path="/form" element={<FormPage />} />
